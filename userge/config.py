@@ -32,7 +32,7 @@ class Config:
     WORKERS = min(32, int(os.environ.get("WORKERS")) or os.cpu_count() + 4)
     BOT_TOKEN = os.environ.get("BOT_TOKEN", None)
     HU_STRING_SESSION = os.environ.get("HU_STRING_SESSION", None)
-    OWNER_ID = int(os.environ.get("OWNER_ID", 0))
+    OWNER_ID = tuple(filter(lambda x: x, map(int, os.environ.get("OWNER_ID", "0").split())))
     LOG_CHANNEL_ID = int(os.environ.get("LOG_CHANNEL_ID"))
     DB_URI = os.environ.get("DATABASE_URL")
     LANG = os.environ.get("PREFERRED_LANGUAGE")
@@ -41,10 +41,12 @@ class Config:
     SUDO_TRIGGER = os.environ.get("SUDO_TRIGGER")
     FINISHED_PROGRESS_STR = os.environ.get("FINISHED_PROGRESS_STR")
     UNFINISHED_PROGRESS_STR = os.environ.get("UNFINISHED_PROGRESS_STR")
+    ALIVE_MEDIA = os.environ.get("ALIVE_MEDIA", None)
     CUSTOM_PACK_NAME = os.environ.get("CUSTOM_PACK_NAME")
+    INSTA_ID = os.environ.get("INSTA_ID")
+    INSTA_PASS = os.environ.get("INSTA_PASS")
     UPSTREAM_REPO = os.environ.get("UPSTREAM_REPO")
     UPSTREAM_REMOTE = os.environ.get("UPSTREAM_REMOTE")
-    SCREENSHOT_API = os.environ.get("SCREENSHOT_API", None)
     SPAM_WATCH_API = os.environ.get("SPAM_WATCH_API", None)
     CURRENCY_API = os.environ.get("CURRENCY_API", None)
     OCR_SPACE_API_KEY = os.environ.get("OCR_SPACE_API_KEY", None)
@@ -61,7 +63,8 @@ class Config:
     HEROKU_API_KEY = os.environ.get("HEROKU_API_KEY", None)
     HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME", None)
     G_DRIVE_IS_TD = os.environ.get("G_DRIVE_IS_TD") == "true"
-    LOAD_UNOFFICIAL_PLUGINS = os.environ.get("LOAD_UNOFFICIAL_PLUGINS") == "true"
+    LOAD_UNOFFICIAL_PLUGINS = os.environ.get(
+        "LOAD_UNOFFICIAL_PLUGINS") == "true"
     THUMB_PATH = DOWN_PATH + "thumb_image.jpg"
     TMP_PATH = "userge/plugins/temp/"
     MAX_MESSAGE_LENGTH = 4096
@@ -78,7 +81,7 @@ class Config:
     ANTISPAM_SENTRY = False
     RUN_DYNO_SAVER = False
     HEROKU_APP = heroku3.from_key(HEROKU_API_KEY).apps()[HEROKU_APP_NAME] \
-        if HEROKU_API_KEY else None
+        if HEROKU_API_KEY and HEROKU_APP_NAME else None
     STATUS = None
 
 
@@ -90,7 +93,8 @@ def get_version() -> str:
         if diff:
             return f"{ver}-patch.{len(diff)}"
     else:
-        diff = list(_REPO.iter_commits(f'{Config.UPSTREAM_REMOTE}/master..HEAD'))
+        diff = list(_REPO.iter_commits(
+            f'{Config.UPSTREAM_REMOTE}/master..HEAD'))
         if diff:
             return f"{ver}-custom.{len(diff)}"
     return ver
